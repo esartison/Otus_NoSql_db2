@@ -17,9 +17,7 @@
 
 
 ## (1) установить MongoDB одним из способов: ВМ, докер; ВМ ##
-создал самую простую VM в YC 
-
-![image](https://github.com/user-attachments/assets/9b598d4f-1691-4c15-a87b-f4cf33232028)
+Устанавливаем MongoDB на локальную VM и используем [Install MongoDB Community Edition on Ubuntu]([https://github.com "Open source platform"](https://www.mongodb.com/docs/v8.0/tutorial/install-mongodb-on-ubuntu/#install-mongodb-community-edition-on-ubuntu))
 
 установил Postgres с настройками по умолчанию
 >sudo apt install curl ca-certificates
