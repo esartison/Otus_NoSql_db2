@@ -19,26 +19,32 @@
 ## (1) установить MongoDB одним из способов: ВМ, докер; ВМ ##
 Устанавливаем MongoDB на локальную VM и используем [Install MongoDB Community Edition on Ubuntu](https://www.mongodb.com/docs/v8.0/tutorial/install-mongodb-on-ubuntu/#install-mongodb-community-edition-on-ubuntu)
 
-установил Postgres с настройками по умолчанию
->sudo apt install curl ca-certificates
 
->sudo install -d /usr/share/postgresql-common/pgdg
+установка утилит gnupg и curl
+>sudo apt-get install gnupg curl
 
->sudo curl -o /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc --fail https://www.postgresql.org/media/keys/ACCC4CF8.asc
+импортировать публичный ключ
+>curl -fsSL --insecure https://pgp.mongodb.com/server-8.0.asc |    sudo gpg -o /usr/share/keyrings/mongodb-server-8.0.gpg    --dearmor
 
->sudo sh -c 'echo "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
+создать список файлов
+> echo "deb [ arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb-server-8.0.gpg ] https://repo.mongodb.org/apt/ubuntu focal/mongodb-org/8.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-8.0.list
 
->sudo sh -c 'echo "deb [arch=amd64 signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt noble-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
+обновить базу
+> sudo apt-get update -o Acquire::https::Verify-Peer=false
+<img width="1037" height="265" alt="image" src="https://github.com/user-attachments/assets/74caba5f-2f92-45c5-9127-6f9eb6e15022" />
 
->sudo apt update
+установка MongoDB 
+> sudo apt-get install -y mongodb-org -o Acquire::https::Verify-Peer=false
+<img width="951" height="583" alt="image" src="https://github.com/user-attachments/assets/6ad39f00-57fb-40a6-a30f-558e1292b1e7" />
 
->sudo apt install postgresql-13 postgresql-client-13
-![image](https://github.com/user-attachments/assets/5fcc0e98-235a-4fc7-9380-842f2606bbc2)
+старт MongoDB
+>sudo systemctl start mongod
+<img width="1883" height="292" alt="image" src="https://github.com/user-attachments/assets/6fb6c041-b3c2-4438-bf1c-1cc6ff306648" />
 
-создал базу pg_test_perf для тестирования
+проверка подключения
+<img width="1789" height="472" alt="image" src="https://github.com/user-attachments/assets/a15c7e16-5ff9-429f-9863-426df8f7d67e" />
 
 
-![image](https://github.com/user-attachments/assets/601417dd-f301-4296-a879-4b1bef8cf09a)
 
 
 ## (2) заполнить данными ##
