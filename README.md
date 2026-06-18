@@ -1,4 +1,4 @@
-# Домашнее задание Сартисона Евгения 2 #
+# Домашнее задание Сартисона Евгения N2 #
 
 установить MongoDB одним из способов: ВМ, докер;
 
@@ -65,6 +65,33 @@
 
 проверка доступных коллекций
 <img width="399" height="120" alt="image" src="https://github.com/user-attachments/assets/540269df-9dd3-42da-bfd5-eeff875ae66b" />
+
+проверить размер загруженных коллекций
+```
+db = db.getSiblingDB("admin");
+const dbs = db.adminCommand("listDatabases").databases;
+
+print("Database, Collection, DataSize (MB), StorageSize (MB)");
+
+dbs.forEach(function(d) {
+    // Skip system databases to clear up clutter
+    if (["admin", "config", "local"].includes(d.name)) return;
+    
+    let currentDb = db.getSiblingDB(d.name);
+    let collections = currentDb.getCollectionNames();
+    
+    collections.forEach(function(c) {
+        let stats = currentDb.getCollection(c).stats();
+        
+        // Convert bytes to Megabytes for readability
+        let dataSizeMb = (stats.size / (1024 * 1024)).toFixed(2);
+        let storageSizeMb = (stats.storageSize / (1024 * 1024)).toFixed(2);
+        
+        print(`${d.name}, ${c}, ${dataSizeMb} MB, ${storageSizeMb} MB`);
+    });
+});
+```
+<img width="607" height="455" alt="image" src="https://github.com/user-attachments/assets/b3d0eeee-e160-496c-bdaf-33a9f32ba946" />
 
 
 ## (3) написать несколько запросов на выборку и обновление данных ##
