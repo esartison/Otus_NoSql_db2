@@ -48,11 +48,24 @@
 
 
 ## (2) заполнить данными ##
-выполнилить базовый ран(от него будем отталкиваться) против базы pg_test_perf, перед каждым раном будем перезапускать экземпляр и чистить кэш на OS
-> sudo -i -u postgres pg_ctlcluster 17 main stop && sync && echo 3 > /proc/sys/vm/drop_caches  && sudo -i -u postgres  pg_ctlcluster 17 main start
-> sudo -i -u postgres pgbench -i -s 150 pg_test_perf
-![image](https://github.com/user-attachments/assets/f51b27e2-1099-4c80-b96d-6bb1ba119e4f)
+[Load Sample Data into MongoDB](https://restheart.org/docs/mongodb-rest/sample-data)
 
+скачать data set
+>curl --insecure https://atlas-education.s3.amazonaws.com/sampledata.archive -o sampledata.archive
+
+сделать импорт баз
+>mongorestore --archive=sampledata.archive
+<img width="1882" height="234" alt="image" src="https://github.com/user-attachments/assets/ca5705b4-45d3-489c-913a-74a8da27726a" />
+
+проверить базы данных
+<img width="519" height="269" alt="image" src="https://github.com/user-attachments/assets/a0da79ba-91c4-46d2-add1-966edb867a81" />
+
+подключиться к базе sample_restaurants
+<img width="344" height="51" alt="image" src="https://github.com/user-attachments/assets/429f7d98-a26d-439e-a34b-87ead440d22d" />
+
+
+проверка доступных коллекций
+<img width="399" height="120" alt="image" src="https://github.com/user-attachments/assets/540269df-9dd3-42da-bfd5-eeff875ae66b" />
 
 
 ## (3) написать несколько запросов на выборку и обновление данных ##
