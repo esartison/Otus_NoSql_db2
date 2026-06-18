@@ -48,7 +48,7 @@
 
 
 ## (2) заполнить данными ##
-[Load Sample Data into MongoDB](https://restheart.org/docs/mongodb-rest/sample-data)
+Использую данные из [Load Sample Data into MongoDB](https://restheart.org/docs/mongodb-rest/sample-data)
 
 скачать data set
 >curl --insecure https://atlas-education.s3.amazonaws.com/sampledata.archive -o sampledata.archive
@@ -63,29 +63,33 @@
 подключиться к базе sample_restaurants
 <img width="344" height="51" alt="image" src="https://github.com/user-attachments/assets/429f7d98-a26d-439e-a34b-87ead440d22d" />
 
-
 проверка доступных коллекций
 <img width="399" height="120" alt="image" src="https://github.com/user-attachments/assets/540269df-9dd3-42da-bfd5-eeff875ae66b" />
 
 
 ## (3) написать несколько запросов на выборку и обновление данных ##
 
-Взял конфигуратор https://pgconfigurator.cybertec-postgresql.com/ и получил рекомендации по следующим параметрам, пробежался и рекомендации выглядят оправданными
+Сделать выборку всего из таблицы
+>sample_restaurants> db.getCollection('restaurants').find({})
+<img width="831" height="704" alt="image" src="https://github.com/user-attachments/assets/f6898d25-c03e-45f4-9366-fcacf7d72be4" />
+
+Сделать выборку и вывести только 3 поля
+>sample_restaurants> db.getCollection('restaurants').find({}, { restaurant_id: 1, name: 1, address: 1 })
+<img width="661" height="622" alt="image" src="https://github.com/user-attachments/assets/50b5a36d-36b2-40ef-86c9-7c1fa7dda531" />
+
+вернуть поля в определенном порядке и не включать поле _ID
 ```
-postgres@otuspgperf01:~$ psql -c "show all"|egrep "shared_buffers|work_mem|maintenance_work_mem|max_connections|effective_cache_size|effective_io_concurrency|random_page_cost|shared_preload_libraries"
- autovacuum_work_mem                         | -1                                      | Sets the maximum memory to be used by each autovacuum worker process.
- effective_cache_size                        | 4GB                                     | Sets the planner's assumption about the total size of the data caches.
- effective_io_concurrency                    | 1                                       | Number of simultaneous requests that can be handled efficiently by the disk subsystem.
- hash_mem_multiplier                         | 2                                       | Multiple of "work_mem" to use for hash tables.
- logical_decoding_work_mem                   | 64MB                                    | Sets the maximum memory to be used for logical decoding.
- maintenance_io_concurrency                  | 10                                      | A variant of "effective_io_concurrency" that is used for maintenance work.
- maintenance_work_mem                        | 64MB                                    | Sets the maximum memory to be used for maintenance operations.
- max_connections                             | 100                                     | Sets the maximum number of concurrent connections.
- random_page_cost                            | 4                                       | Sets the planner's estimate of the cost of a nonsequentially fetched disk page.
- shared_buffers                              | 128MB                                   | Sets the number of shared memory buffers used by the server.
- shared_preload_libraries                    |                                         | Lists shared libraries to preload into server.
- work_mem                                    | 4MB                                     | Sets the maximum memory to be used for query workspaces.
- ```
+db.restaurants.aggregate([
+  {
+    $project: {
+      _id: 0,
+      restaurant_id: "$restaurant_id",    
+      name: "$name",      
+      address: "$address"       
+    }
+  }
+])
+```
 
 Изменил параметры и перезапустил Postgres
 ```
