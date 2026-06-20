@@ -120,47 +120,287 @@ db.restaurants.aggregate([
   }
 ])
 ```
+<img width="596" height="385" alt="image" src="https://github.com/user-attachments/assets/9937778f-e177-4e81-b7e6-cff82c098857" />
 
-Изменил параметры и перезапустил Postgres
+Допустим ситуацию, сеть рестораном в том же здании решили открыть еще один ресторан русской кухни
 ```
-ALTER SYSTEM SET  shared_buffers = '512 MB'                           ;
-ALTER SYSTEM SET  work_mem = '32 MB'                                  ;
-ALTER SYSTEM SET  maintenance_work_mem = '320 MB'                     ;
-ALTER SYSTEM SET  max_connections = 100                               ;
-ALTER SYSTEM SET  superuser_reserved_connections = 3                  ;
-ALTER SYSTEM SET  effective_cache_size = '1 GB'                       ;
-ALTER SYSTEM SET  effective_io_concurrency = 5                        ;
-ALTER SYSTEM SET  random_page_cost = 4                                ;
-ALTER SYSTEM SET  shared_preload_libraries = 'pg_stat_statements'     ;
+-- Получаем информацию о уже существуюещем
+sample_restaurants> db.getCollection('restaurants').find({restaurant_id: '40361708' })
+[
+  {
+    _id: ObjectId('5eb3d668b31de5d588f4293d'),
+    address: {
+      building: '759',
+      coord: [ -73.9925306, 40.7309346 ],
+      street: 'Broadway',
+      zipcode: '10003'
+    },
+    borough: 'Manhattan',
+    cuisine: 'Delicatessen',
+    grades: [
+      { date: ISODate('2014-01-21T00:00:00.000Z'), grade: 'A', score: 12 },
+      { date: ISODate('2013-01-04T00:00:00.000Z'), grade: 'A', score: 11 },
+      { date: ISODate('2012-06-07T00:00:00.000Z'), grade: 'A', score: 6 },
+      { date: ISODate('2012-01-17T00:00:00.000Z'), grade: 'A', score: 8 }
+    ],
+    name: "Bully'S Deli",
+    restaurant_id: '40361708'
+  }
+]
+
+-- заполняем переменную
+var newRow =db.getCollection('restaurants').findOne({restaurant_id: '40361708' });
+
+-- делаем нужные правки
+newRow._id = new ObjectId();
+newRow.cuisine = "Russian Delicatessen";
+newRow.name =  "Bully'S Deli RU";
+newRow.restaurant_id =  "4036444844";
+
+-- Вставляем новую запись
+db.restaurants.insertOne(newRow);
+{
+  acknowledged: true,
+  insertedId: ObjectId('6a36c4a19188f806cf9df8a3')
+}
+
+-- проверяем
+sample_restaurants> db.getCollection('restaurants').findOne({restaurant_id: '4036444844' });
+{
+  _id: ObjectId('6a36c4a19188f806cf9df8a3'),
+  address: {
+    building: '759',
+    coord: [ -73.9925306, 40.7309346 ],
+    street: 'Broadway',
+    zipcode: '10003'
+  },
+  borough: 'Manhattan',
+  cuisine: 'Russian Delicatessen',
+  grades: [
+    { date: ISODate('2014-01-21T00:00:00.000Z'), grade: 'A', score: 12 },
+    { date: ISODate('2013-01-04T00:00:00.000Z'), grade: 'A', score: 11 },
+    { date: ISODate('2012-06-07T00:00:00.000Z'), grade: 'A', score: 6 },
+    { date: ISODate('2012-01-17T00:00:00.000Z'), grade: 'A', score: 8 }
+  ],
+  name: "Bully'S Deli RU",
+  restaurant_id: '4036444844'
+}
 ```
-> sudo -i -u postgres pg_ctlcluster 17 main stop && sync && echo 3 > /proc/sys/vm/drop_caches  && sudo -i -u postgres  pg_ctlcluster 17 main start
+
+Потом решили провести ребрендинг и переименовать ресторан "Bully'S Deli RU" -> "BD RU VIP"
+```
+sample_restaurants> db.getCollection('restaurants').findOne({restaurant_id: "4036444844" });
+{
+  _id: ObjectId('6a36c4a19188f806cf9df8a3'),
+  address: {
+    building: '759',
+    coord: [ -73.9925306, 40.7309346 ],
+    street: 'Broadway',
+    zipcode: '10003'
+  },
+  borough: 'Manhattan',
+  cuisine: 'Russian Delicatessen',
+  grades: [
+    { date: ISODate('2014-01-21T00:00:00.000Z'), grade: 'A', score: 12 },
+    { date: ISODate('2013-01-04T00:00:00.000Z'), grade: 'A', score: 11 },
+    { date: ISODate('2012-06-07T00:00:00.000Z'), grade: 'A', score: 6 },
+    { date: ISODate('2012-01-17T00:00:00.000Z'), grade: 'A', score: 8 }
+  ],
+  name: "Bully'S Deli RU",
+  restaurant_id: '4036444844'
+}
+
+sample_restaurants> db.restaurants.updateOne( { restaurant_id: "4036444844" }, { $set: { name: "BD RU VIP" } } );
+{
+  acknowledged: true,
+  insertedId: null,
+  matchedCount: 1,
+  modifiedCount: 1,
+  upsertedCount: 0
+}
+
+sample_restaurants> db.getCollection('restaurants').findOne({restaurant_id: "4036444844" });
+{
+  _id: ObjectId('6a36c4a19188f806cf9df8a3'),
+  address: {
+    building: '759',
+    coord: [ -73.9925306, 40.7309346 ],
+    street: 'Broadway',
+    zipcode: '10003'
+  },
+  borough: 'Manhattan',
+  cuisine: 'Russian Delicatessen',
+  grades: [
+    { date: ISODate('2014-01-21T00:00:00.000Z'), grade: 'A', score: 12 },
+    { date: ISODate('2013-01-04T00:00:00.000Z'), grade: 'A', score: 11 },
+    { date: ISODate('2012-06-07T00:00:00.000Z'), grade: 'A', score: 6 },
+    { date: ISODate('2012-01-17T00:00:00.000Z'), grade: 'A', score: 8 }
+  ],
+  name: 'BD RU VIP',
+  restaurant_id: '4036444844'
+}
+```
 
 
-Проверка значений параметров после 
-```
-postgres@otuspgperf01:~$ psql -c "show all"|egrep "shared_buffers|work_mem|maintenance_work_mem|max_connections|effective_cache_size|effective_io_concurrency|random_page_cost|shared_preload_libraries"
- autovacuum_work_mem                         | -1                                      | Sets the maximum memory to be used by each autovacuum worker process.
- effective_cache_size                        | 1GB                                     | Sets the planner's assumption about the total size of the data caches.
- effective_io_concurrency                    | 5                                       | Number of simultaneous requests that can be handled efficiently by the disk subsystem.
- hash_mem_multiplier                         | 2                                       | Multiple of "work_mem" to use for hash tables.
- logical_decoding_work_mem                   | 64MB                                    | Sets the maximum memory to be used for logical decoding.
- maintenance_io_concurrency                  | 10                                      | A variant of "effective_io_concurrency" that is used for maintenance work.
- maintenance_work_mem                        | 320MB                                   | Sets the maximum memory to be used for maintenance operations.
- max_connections                             | 100                                     | Sets the maximum number of concurrent connections.
- random_page_cost                            | 4                                       | Sets the planner's estimate of the cost of a nonsequentially fetched disk page.
- shared_buffers                              | 512MB                                   | Sets the number of shared memory buffers used by the server.
- shared_preload_libraries                    | pg_stat_statements                      | Lists shared libraries to preload into server.
- work_mem                                    | 32MB                                    | Sets the maximum memory to be used for query workspaces.
-```
 
 ## (4) создать индексы и сравнить производительность* ##
 
-Решил попробовать поменять значения для 3х параметров: wal_level, synchronous_commit, fsync
+Попробвал создать индекс для коллекции с размером 10Mb. После создания индекса время выполнения(executionTimeMillis) сократилось с 342 до 22.
+
+Статистика ДО
 ```
-postgres@otuspgperf01:~$ psql -c "show all"|egrep "wal_level|synchronous_commit|fsync"
- fsync                                       | on                                      | Forces synchronization of updates to disk.
- recovery_init_sync_method                   | fsync                                   | Sets the method for synchronizing the data directory before crash recovery.
- synchronous_commit                          | on                                      | Sets the current transaction's synchronization level.
- wal_level                                   | replica                                 | Sets the level of information written to the WAL.
- wal_skip_threshold                          | 2MB                                     | Minimum size of new file to fsync instead of writing WAL.
+sample_restaurants>  db.getCollection('restaurants').find({restaurant_id: '40361708' }).explain("executionStats")
+{
+  explainVersion: '1',
+  queryPlanner: {
+    namespace: 'sample_restaurants.restaurants',
+    parsedQuery: { restaurant_id: { '$eq': '40361708' } },
+    indexFilterSet: false,
+    queryHash: '9687E8EA',
+    planCacheShapeHash: '9687E8EA',
+    planCacheKey: 'F4787E42',
+    optimizationTimeMillis: 29,
+    maxIndexedOrSolutionsReached: false,
+    maxIndexedAndSolutionsReached: false,
+    maxScansToExplodeReached: false,
+    prunedSimilarIndexes: false,
+    winningPlan: {
+      isCached: false,
+      stage: 'COLLSCAN',
+      filter: { restaurant_id: { '$eq': '40361708' } },
+      direction: 'forward'
+    },
+    rejectedPlans: []
+  },
+  executionStats: {
+    executionSuccess: true,
+    nReturned: 1,
+    executionTimeMillis: 342,
+    totalKeysExamined: 0,
+    totalDocsExamined: 25359,
+    executionStages: {
+      isCached: false,
+      stage: 'COLLSCAN',
+      filter: { restaurant_id: { '$eq': '40361708' } },
+      nReturned: 1,
+      executionTimeMillisEstimate: 287,
+      works: 25360,
+      advanced: 1,
+      needTime: 25358,
+      needYield: 0,
+      saveState: 14,
+      restoreState: 14,
+      isEOF: 1,
+      direction: 'forward',
+      docsExamined: 25359
+    }
+  },
+  queryShapeHash: 'BB4853BE7BAEE5AC49F54556E5F106E34AE79411503664D5189653C291017885',
+  command: {
+    find: 'restaurants',
+    filter: { restaurant_id: '40361708' },
+    '$db': 'sample_restaurants'
+  },
+  serverInfo: {
+    host: 'course',
+    port: 27017,
+    version: '8.0.26',
+    gitVersion: 'a2c24805265db119cc39f2f54e067b4294a4ddd2'
+  },
+  serverParameters: {
+    internalQueryFacetBufferSizeBytes: 104857600,
+    internalQueryFacetMaxOutputDocSizeBytes: 104857600,
+    internalLookupStageIntermediateDocumentMaxSizeBytes: 104857600,
+    internalDocumentSourceGroupMaxMemoryBytes: 104857600,
+    internalQueryMaxBlockingSortMemoryUsageBytes: 104857600,
+    internalQueryProhibitBlockingMergeOnMongoS: 0,
+    internalQueryMaxAddToSetBytes: 104857600,
+    internalDocumentSourceSetWindowFieldsMaxMemoryBytes: 104857600,
+    internalQueryFrameworkControl: 'trySbeRestricted',
+    internalQueryPlannerIgnoreIndexWithCollationForRegex: 1
+  },
+  ok: 1
+}
+```
+
+Создание индекса
+```
+sample_restaurants> db.users.createIndex( { "restaurant_id": 1 } )
+restaurant_id_1
+```
+
+Статистика ПОСЛЕ
+```
+sample_restaurants> db.getCollection('restaurants').find({restaurant_id: '40361708' }).explain("executionStats")
+{
+  explainVersion: '1',
+  queryPlanner: {
+    namespace: 'sample_restaurants.restaurants',
+    parsedQuery: { restaurant_id: { '$eq': '40361708' } },
+    indexFilterSet: false,
+    queryHash: '9687E8EA',
+    planCacheShapeHash: '9687E8EA',
+    planCacheKey: 'F4787E42',
+    optimizationTimeMillis: 3,
+    maxIndexedOrSolutionsReached: false,
+    maxIndexedAndSolutionsReached: false,
+    maxScansToExplodeReached: false,
+    prunedSimilarIndexes: false,
+    winningPlan: {
+      isCached: false,
+      stage: 'COLLSCAN',
+      filter: { restaurant_id: { '$eq': '40361708' } },
+      direction: 'forward'
+    },
+    rejectedPlans: []
+  },
+  executionStats: {
+    executionSuccess: true,
+    nReturned: 1,
+    executionTimeMillis: 22,
+    totalKeysExamined: 0,
+    totalDocsExamined: 25359,
+    executionStages: {
+      isCached: false,
+      stage: 'COLLSCAN',
+      filter: { restaurant_id: { '$eq': '40361708' } },
+      nReturned: 1,
+      executionTimeMillisEstimate: 20,
+      works: 25360,
+      advanced: 1,
+      needTime: 25358,
+      needYield: 0,
+      saveState: 1,
+      restoreState: 1,
+      isEOF: 1,
+      direction: 'forward',
+      docsExamined: 25359
+    }
+  },
+  queryShapeHash: 'BB4853BE7BAEE5AC49F54556E5F106E34AE79411503664D5189653C291017885',
+  command: {
+    find: 'restaurants',
+    filter: { restaurant_id: '40361708' },
+    '$db': 'sample_restaurants'
+  },
+  serverInfo: {
+    host: 'course',
+    port: 27017,
+    version: '8.0.26',
+    gitVersion: 'a2c24805265db119cc39f2f54e067b4294a4ddd2'
+  },
+  serverParameters: {
+    internalQueryFacetBufferSizeBytes: 104857600,
+    internalQueryFacetMaxOutputDocSizeBytes: 104857600,
+    internalLookupStageIntermediateDocumentMaxSizeBytes: 104857600,
+    internalDocumentSourceGroupMaxMemoryBytes: 104857600,
+    internalQueryMaxBlockingSortMemoryUsageBytes: 104857600,
+    internalQueryProhibitBlockingMergeOnMongoS: 0,
+    internalQueryMaxAddToSetBytes: 104857600,
+    internalDocumentSourceSetWindowFieldsMaxMemoryBytes: 104857600,
+    internalQueryFrameworkControl: 'trySbeRestricted',
+    internalQueryPlannerIgnoreIndexWithCollationForRegex: 1
+  },
+  ok: 1
+}
 ``` 
