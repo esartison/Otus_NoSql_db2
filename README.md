@@ -58,12 +58,15 @@
 <img width="1882" height="234" alt="image" src="https://github.com/user-attachments/assets/ca5705b4-45d3-489c-913a-74a8da27726a" />
 
 проверить базы данных
+
 <img width="519" height="269" alt="image" src="https://github.com/user-attachments/assets/a0da79ba-91c4-46d2-add1-966edb867a81" />
 
 подключиться к базе sample_restaurants
+
 <img width="344" height="51" alt="image" src="https://github.com/user-attachments/assets/429f7d98-a26d-439e-a34b-87ead440d22d" />
 
 проверка доступных коллекций
+
 <img width="399" height="120" alt="image" src="https://github.com/user-attachments/assets/540269df-9dd3-42da-bfd5-eeff875ae66b" />
 
 проверить размер загруженных коллекций
